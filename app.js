@@ -11,7 +11,9 @@ var express = require('express'),
       random = require('mongoose-random'),
       mongo = require('mongodb'),
       session = require('express-session'),
-      path = require('path');
+      path = require('path'),
+      redis = require('redis'),
+      redisClient;
 
 var app = express();
 var Trivia = require('./QuestionSchema.js');
@@ -37,24 +39,6 @@ app.use(session({
 	secret: 'secret', //whatever we want as the super secret secret
 	resave: true,
   saveUninitialized: true
-}));
-
-//Express Validator - Copied from express-validator documentation
-app.use(expressValidator({
-  errorFormatter: function(param, msg, value) {
-      var namespace = param.split('.'),
-      root    = namespace.shift(),
-      formParam = root;
-
-    while(namespace.length) {
-      formParam += '[' + namespace.shift() + ']';
-    }
-    return {
-      param : formParam,
-      msg   : msg,
-      value : value
-    };
-  }
 }));
 
 db.counters.insert(
@@ -119,7 +103,7 @@ app.post("/answer", function(req, res) {
 });
 
 app.get("/score", function(req, res) {
-  rs.json("{ right: " + right + ", wrong: " + wrong + " }");
+  res.json("{ right: " + right + ", wrong: " + wrong + " }");
   return res.status(200).send();
 });
 
